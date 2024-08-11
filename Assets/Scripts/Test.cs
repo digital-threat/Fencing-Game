@@ -22,6 +22,6 @@ public class UI : MonoBehaviour
 
     private void Awake()
     {
-        //GetComponent<UnityTransport>().SetDebugSimulatorParameters(packetDelay: 100, packetJitter: 5, dropRate: 3);
+        //GetComponent<UnityTransport>().SetDebugSimulatorParameters(packetDelay: 25, packetJitter: 2, dropRate: 1);
     }
 }

@@ -1,34 +1,22 @@
 using System;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : NetworkBehaviour
 {
-    private enum RapierPosition
-    {
-        BOTTOM,
-        MIDDLE,
-        TOP
-    }
-
-    [SerializeField] private Transform rapier;
     [SerializeField] private float speed;
     [SerializeField] private InputAction moveAction;
-    [SerializeField] private InputAction moveRapierAction;
-    [SerializeField] private InputAction strikeAction;
-
-    private RapierPosition rapierPosition = RapierPosition.MIDDLE;
     
-    private readonly NetworkVariable<int> moveRapierInput = new ();
     private readonly NetworkVariable<float> moveInput = new ();
+
+    private NetworkTransform networkTransform;
     
-    public override void OnNetworkSpawn()
+
+    private void Awake()
     {
-        // if (!IsOwner)
-        // {
-        //     enabled = false;
-        // }
+        networkTransform = GetComponent<NetworkTransform>();
     }
 
     private void Start()
@@ -36,9 +24,6 @@ public class Player : NetworkBehaviour
         if (IsLocalPlayer)
         {
             moveAction.Enable();
-            moveRapierAction.Enable();
-            moveRapierAction.performed += OnMoveRapier;
-            strikeAction.Enable();
         }
         
         if (IsServer)
@@ -47,38 +32,20 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private void OnMoveRapier(InputAction.CallbackContext context)
-    {
-        if (IsLocalPlayer)
-        {
-            var moveRapierValue = context.ReadValue<float>();
-            if (moveRapierValue > 0)
-            {
-                MoveRapierRPC(1);
-            }
-            else if (moveRapierValue < 0)
-            {
-                MoveRapierRPC(-1);
-            }
-        }
-    }
-
     private void Update()
     {
         if (IsServer)
         {
-            if (moveInput.Value > 0)
+            if (moveInput.Value > 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 180))
             {
-                transform.localScale = new Vector3(1, 1, 1);
+                var rotation = Quaternion.Euler(0, 0, 0);
+                networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
             }
-            else if (moveInput.Value < 0)
+            else if (moveInput.Value < 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 0))
             {
-                transform.localScale = new Vector3(-1, 1, 1);
+                var rotation = Quaternion.Euler(0, 180, 0);
+                networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
             }
-
-            rapierPosition += moveRapierInput.Value;
-            rapierPosition = (RapierPosition)Mathf.Clamp((int)rapierPosition, (int)RapierPosition.BOTTOM , (int)RapierPosition.TOP);
-            rapier.position = transform.position + new Vector3(0.7f, (int)rapierPosition * 0.5f);
         }
     }
 
@@ -103,11 +70,5 @@ public class Player : NetworkBehaviour
     private void MoveRPC(float data)
     {
         moveInput.Value = data;
-    }
-
-    [Rpc(SendTo.Server)]
-    private void MoveRapierRPC(int data)
-    {
-        moveRapierInput.Value = data;
     }
 }
