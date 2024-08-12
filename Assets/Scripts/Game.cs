@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class Game : NetworkBehaviour
 {
     [SerializeField] private GameObject rapierPrefab;
+    [SerializeField] private GameObject scorePrefab;
 
     private List<ulong> clients = new ();
 
@@ -70,11 +72,27 @@ public class Game : NetworkBehaviour
         if (connectionEventData.EventType == ConnectionEvent.ClientConnected)
         {
             var rapier = Instantiate(rapierPrefab);
-            var networkObject = rapier.GetComponent<NetworkObject>();
-            networkObject.SpawnWithOwnership(connectionEventData.ClientId);
+            var noRapier = rapier.GetComponent<NetworkObject>();
+            noRapier.SpawnWithOwnership(connectionEventData.ClientId);
             
             var playerObject = NetworkManager.Singleton.ConnectedClients[connectionEventData.ClientId].PlayerObject;
-            networkObject.TrySetParent(playerObject, false);
+            noRapier.TrySetParent(playerObject, false);
+
+            var score = Instantiate(scorePrefab);
+            var noScore = score.GetComponent<NetworkObject>();
+            noScore.SpawnWithOwnership(connectionEventData.ClientId);
+
+            var tmpScore = score.GetComponentInChildren<TMP_Text>();
+            var rtScore = tmpScore.GetComponent<RectTransform>();
+
+            if (clients.IndexOf(connectionEventData.ClientId) == 0)
+            {
+                rtScore.anchoredPosition = new Vector2(-50, -15);
+            }
+            else
+            {
+                rtScore.anchoredPosition = new Vector2(50, -15);
+            }
         }
     }
 
