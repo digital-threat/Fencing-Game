@@ -4,13 +4,11 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : NetworkBehaviour
+public class Player : NetworkBehaviour, IPlayer
 {
     [SerializeField] private float speed;
     [SerializeField] private InputAction moveAction;
     
-    private readonly NetworkVariable<float> moveInput = new ();
-
     private NetworkTransform networkTransform;
     
 
@@ -25,28 +23,6 @@ public class Player : NetworkBehaviour
         {
             moveAction.Enable();
         }
-        
-        if (IsServer)
-        {
-            transform.position -= new Vector3(0, 1);
-        }
-    }
-
-    private void Update()
-    {
-        if (IsServer)
-        {
-            if (moveInput.Value > 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 180))
-            {
-                var rotation = Quaternion.Euler(0, 0, 0);
-                networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
-            }
-            else if (moveInput.Value < 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 0))
-            {
-                var rotation = Quaternion.Euler(0, 180, 0);
-                networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -54,21 +30,27 @@ public class Player : NetworkBehaviour
         if (IsLocalPlayer)
         {
             var moveValue = moveAction.ReadValue<float>();
-            if (moveValue != 0 || moveInput.Value != 0)
+            if (moveValue != 0)
             {
                 MoveRPC(moveValue);
             }
-        }
-        
-        if (IsServer)
-        {
-            transform.position += new Vector3(speed * Time.deltaTime * moveInput.Value, 0);
         }
     }
 
     [Rpc(SendTo.Server)]
     private void MoveRPC(float data)
     {
-        moveInput.Value = data;
+        transform.position += new Vector3(speed * Time.deltaTime * data, 0);
+        
+        if (data > 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 180))
+        {
+            var rotation = Quaternion.Euler(0, 0, 0);
+            networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
+        }
+        else if (data < 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 0))
+        {
+            var rotation = Quaternion.Euler(0, 180, 0);
+            networkTransform.SetState(rotIn: rotation, teleportDisabled: false);
+        }
     }
 }

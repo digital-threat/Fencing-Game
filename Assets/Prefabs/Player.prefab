@@ -13,9 +13,10 @@ GameObject:
   - component: {fileID: 2735637347457772704}
   - component: {fileID: 3863096002968084253}
   - component: {fileID: 4121131125209451344}
+  - component: {fileID: 4760904204064094280}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,56 +155,6 @@ MonoBehaviour:
       m_Action: Move
       m_Flags: 8
     m_Flags: 0
-  moveRapierAction:
-    m_Name: Move Rapier
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 630e6c93-a8ec-4b93-b112-7e24ab7727f8
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 1D Axis
-      m_Id: b61de690-0587-4fbb-8a14-961405a75c87
-      m_Path: 1DAxis
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move Rapier
-      m_Flags: 4
-    - m_Name: negative
-      m_Id: 10acf0a9-567f-45fe-b7a5-e5bd8cc16cb6
-      m_Path: <Keyboard>/s
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move Rapier
-      m_Flags: 8
-    - m_Name: positive
-      m_Id: 7ebac99e-1094-4b92-8279-b0bc9362bb42
-      m_Path: <Keyboard>/w
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move Rapier
-      m_Flags: 8
-    m_Flags: 0
-  strikeAction:
-    m_Name: Strike
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 6408f603-369b-49bd-8f7e-53fc4e8523a5
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: d8cc5c1c-2494-4775-a122-46b3e73a49d0
-      m_Path: <Keyboard>/space
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Strike
-      m_Flags: 0
-    m_Flags: 0
 --- !u!114 &4121131125209451344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235,3 +186,38 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!70 &4760904204064094280
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8633343174329081427}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 1, y: 2}
+  m_Direction: 0
