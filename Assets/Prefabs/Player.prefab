@@ -121,6 +121,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae20c17c0203ff4a83917267a4f5737, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emojiPrefabs:
+  - {fileID: 9084046525543400390, guid: 9a7c1e7af3e23754a9fcd7e39222841b, type: 3}
+  - {fileID: 8656551751867358111, guid: c807fb2a9af25fc44a300f62d9bac46a, type: 3}
+  - {fileID: 2539446753099333602, guid: 93e8898152dec094aa33581e8ade051a, type: 3}
+  emojiDuration: 1
+  emojiCooldown: 0.25
   speed: 5
   moveAction:
     m_Name: Move
@@ -154,6 +160,74 @@ MonoBehaviour:
       m_Groups: 
       m_Action: Move
       m_Flags: 8
+    m_Flags: 0
+  turnAction:
+    m_Name: Turn
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 699d89c4-ee1b-454e-9782-b7719a92019d
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: c9186295-d207-45ec-b20e-073d217f1573
+      m_Path: <Keyboard>/shift
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Turn
+      m_Flags: 0
+    m_Flags: 0
+  emojiAction1:
+    m_Name: Emoji Action 1
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 90b3a141-6c0b-488c-aadc-621d3030f0b5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 3d5c3b3b-5c9e-4e47-b8c0-943d9856a1c5
+      m_Path: <Keyboard>/1
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Emoji Action 1
+      m_Flags: 0
+    m_Flags: 0
+  emojiAction2:
+    m_Name: Emoji Action 2
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 85018e96-a98f-4ef8-bd79-dd91f0e76a94
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: c9b24b6f-b76c-4e7d-9e30-813979d084ef
+      m_Path: <Keyboard>/2
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Emoji Action 2
+      m_Flags: 0
+    m_Flags: 0
+  emojiAction3:
+    m_Name: Emoji Action 3
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 6e6d8dcc-42b8-4fb3-b05f-ca0921c860b6
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 52864bb9-6d23-4872-b012-491592aa9678
+      m_Path: <Keyboard>/3
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Emoji Action 3
+      m_Flags: 0
     m_Flags: 0
 --- !u!114 &4121131125209451344
 MonoBehaviour:

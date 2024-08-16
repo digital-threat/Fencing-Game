@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 public class Rapier : NetworkBehaviour
 {
-    private enum Stance
+    public enum Stance
     {
         BOTTOM,
         MIDDLE,
@@ -92,25 +92,24 @@ public class Rapier : NetworkBehaviour
         state = State.STRIKE;
         transform.localPosition += new Vector3(strikeReach, 0);
 
-        
-        int hits = collider.Cast(transform.right, hitBuffer, 0);
-        for (int i = 0; i < hits; i++)
+
+        // No hit if rapier is already inside the other player.
+        if (!OverlapsPlayer())
         {
-            if (hitBuffer[i].transform.CompareTag("Player"))
+            int hits = collider.Cast(transform.right, hitBuffer, strikeReach);
+            for (int i = 0; i < hits; i++)
             {
-                Debug.Log("Overlaps player");
-            }
-        }
-        
-        hits = collider.Cast(transform.right, hitBuffer, strikeReach);
-        for (int i = 0; i < hits; i++)
-        {
-            if (hitBuffer[i].transform.CompareTag("Player"))
-            {
-                var otherClientId = hitBuffer[i].transform.GetComponent<NetworkObject>().OwnerClientId;
-                
-                Game.Instance.RespawnPlayers();
-                Game.Instance.UpdateScore(OwnerClientId, otherClientId);
+                if (hitBuffer[i].transform.CompareTag("Player"))
+                { 
+                    var otherClientId = hitBuffer[i].transform.GetComponent<NetworkObject>().OwnerClientId;
+
+                    // No hit if the other player is in the same stance
+                    if (Game.Instance.GetStance(otherClientId) != stance)
+                    {
+                        Game.Instance.RespawnPlayers();
+                        Game.Instance.UpdateScore(OwnerClientId, otherClientId);
+                    }
+                }
             }
         }
         
@@ -118,6 +117,25 @@ public class Rapier : NetworkBehaviour
         
         transform.localPosition -= new Vector3(strikeReach, 0);
         state = State.GUARD;
+    }
+    
+    private bool OverlapsPlayer()
+    {
+        int hits = collider.Cast(transform.right, hitBuffer, 0);
+        for (int i = 0; i < hits; i++)
+        {
+            if (hitBuffer[i].transform.CompareTag("Player"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public Stance GetStance()
+    {
+        return stance;
     }
     
     [Rpc(SendTo.Server)]

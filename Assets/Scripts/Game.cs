@@ -157,4 +157,9 @@ public class Game : NetworkBehaviour
             loser.score.DecrementScore();
         }
     }
+
+    public Rapier.Stance GetStance(ulong clientId)
+    {
+        return clients[clientId].rapier.GetStance();
+    }
 }
