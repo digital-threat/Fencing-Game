@@ -4,10 +4,13 @@ using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : NetworkBehaviour, IPlayer
+public class Player : NetworkBehaviour
 {
     [SerializeField] private float speed;
     [SerializeField] private InputAction moveAction;
+    [SerializeField] private InputAction emojiAction1;
+    [SerializeField] private InputAction emojiAction2;
+    [SerializeField] private InputAction emojiAction3;
     
     private NetworkTransform networkTransform;
     
@@ -22,6 +25,9 @@ public class Player : NetworkBehaviour, IPlayer
         if (IsLocalPlayer)
         {
             moveAction.Enable();
+            emojiAction1.Enable();
+            emojiAction2.Enable();
+            emojiAction3.Enable();
         }
     }
 
@@ -40,7 +46,10 @@ public class Player : NetworkBehaviour, IPlayer
     [Rpc(SendTo.Server)]
     private void MoveRPC(float data)
     {
-        transform.position += new Vector3(speed * Time.deltaTime * data, 0);
+        var newPosition = transform.position + new Vector3(speed * Time.deltaTime * data, 0);
+        newPosition.x = Mathf.Clamp(newPosition.x, -9, 9);
+
+        transform.position = newPosition;
         
         if (data > 0 && Mathf.Approximately(transform.rotation.eulerAngles.y, 180))
         {

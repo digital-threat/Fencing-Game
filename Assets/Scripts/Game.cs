@@ -9,7 +9,25 @@ public class Game : NetworkBehaviour
     [SerializeField] private GameObject rapierPrefab;
     [SerializeField] private GameObject scorePrefab;
 
-    private List<ulong> clients = new ();
+    private enum Side
+    {
+        LEFT,
+        RIGHT
+    }
+    
+    private class Client
+    {
+        public readonly Side side;
+        public Score score;
+        public Rapier rapier;
+
+        public Client(Side side)
+        {
+            this.side = side;
+        }
+    }
+
+    private readonly Dictionary<ulong, Client> clients = new ();
 
     public static Game Instance;
     
@@ -43,18 +61,18 @@ public class Game : NetworkBehaviour
     {
         if (clients.Count < 2)
         {
-            clients.Add(request.ClientNetworkId);
-
             response.Approved = true;
             response.CreatePlayerObject = true;
 
             switch (clients.Count)
             {
-                case 1:
+                case 0:
+                    clients.Add(request.ClientNetworkId, new Client(Side.LEFT));
                     response.Position = new Vector3(-6, -1);
                     response.Rotation = Quaternion.identity;
                     break;
-                case 2:
+                case 1:
+                    clients.Add(request.ClientNetworkId, new Client(Side.RIGHT));
                     response.Position = new Vector3(6, -1);
                     response.Rotation = Quaternion.Euler(0, 180, 0);
                     break;
@@ -77,41 +95,66 @@ public class Game : NetworkBehaviour
             
             var playerObject = NetworkManager.Singleton.ConnectedClients[connectionEventData.ClientId].PlayerObject;
             noRapier.TrySetParent(playerObject, false);
-
+            
             var score = Instantiate(scorePrefab);
             var noScore = score.GetComponent<NetworkObject>();
+            var cpScore = score.GetComponent<Score>();
+            
             noScore.SpawnWithOwnership(connectionEventData.ClientId);
 
-            var tmpScore = score.GetComponentInChildren<TMP_Text>();
-            var rtScore = tmpScore.GetComponent<RectTransform>();
-
-            if (clients.IndexOf(connectionEventData.ClientId) == 0)
+            if (clients[connectionEventData.ClientId].side == Side.LEFT)
             {
-                rtScore.anchoredPosition = new Vector2(-50, -15);
+                cpScore.SetPosition(new Vector2(-50, -15));
             }
             else
             {
-                rtScore.anchoredPosition = new Vector2(50, -15);
+                cpScore.SetPosition(new Vector2(50, -15));
             }
+
+            clients[connectionEventData.ClientId].score = cpScore;
+            clients[connectionEventData.ClientId].rapier = rapier.GetComponent<Rapier>();
+        }
+        else if (connectionEventData.EventType == ConnectionEvent.ClientDisconnected)
+        {
+            var noScore = clients[connectionEventData.ClientId].score.GetComponent<NetworkObject>();
+            noScore.Despawn();
+            Destroy(noScore.gameObject);
+            
+            var noRapier = clients[connectionEventData.ClientId].rapier.GetComponent<NetworkObject>();
+            noRapier.Despawn();
+            Destroy(noRapier.gameObject);
         }
     }
 
     public void RespawnPlayers()
     {
-        for (int i = 0; i < clients.Count; i++)
+        foreach (var client in clients)
         {
-            var playerObject = NetworkManager.Singleton.ConnectedClients[clients[i]].PlayerObject;
-
-            if (i == 0)
+            var playerObject = NetworkManager.Singleton.ConnectedClients[client.Key].PlayerObject;
+            
+            if (client.Value.side == Side.LEFT)
             {
                 playerObject.transform.position = new Vector3(-6, -1);
                 playerObject.transform.rotation = Quaternion.identity;
             }
-            else if (i == 1)
+            else
             {
                 playerObject.transform.position = new Vector3(6, -1);
                 playerObject.transform.rotation = Quaternion.Euler(0, 180, 0);;
             }
+        }
+    }
+
+    public void UpdateScore(ulong winnerClientId, ulong loserClientId)
+    {
+        if (clients.TryGetValue(winnerClientId, out var winner))
+        {
+            winner.score.IncrementScore();
+        }
+        
+        if (clients.TryGetValue(loserClientId, out var loser))
+        {
+            loser.score.DecrementScore();
         }
     }
 }

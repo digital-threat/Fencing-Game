@@ -90,6 +90,8 @@ public class Rapier : NetworkBehaviour
     private IEnumerator StrikeCoroutine()
     {
         state = State.STRIKE;
+        transform.localPosition += new Vector3(strikeReach, 0);
+
         
         int hits = collider.Cast(transform.right, hitBuffer, 0);
         for (int i = 0; i < hits; i++)
@@ -105,14 +107,16 @@ public class Rapier : NetworkBehaviour
         {
             if (hitBuffer[i].transform.CompareTag("Player"))
             {
+                var otherClientId = hitBuffer[i].transform.GetComponent<NetworkObject>().OwnerClientId;
+                
                 Game.Instance.RespawnPlayers();
+                Game.Instance.UpdateScore(OwnerClientId, otherClientId);
             }
         }
         
-        transform.localPosition += new Vector3(strikeReach, 0);
         yield return new WaitForSeconds(strikeDuration);
-        transform.localPosition -= new Vector3(strikeReach, 0);
         
+        transform.localPosition -= new Vector3(strikeReach, 0);
         state = State.GUARD;
     }
     
