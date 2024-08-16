@@ -85,7 +85,7 @@ public class Player : NetworkBehaviour
         canSpawnEmoji = true;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (IsLocalPlayer)
         {

@@ -33,8 +33,8 @@ public class Rapier : NetworkBehaviour
     private readonly RaycastHit2D[] hitBuffer = new RaycastHit2D[2];
     private readonly Dictionary<Stance, float> stances = new ();
 
-    private State state = State.GUARD;
-    private Stance stance = Stance.MIDDLE;
+    private NetworkVariable<Stance> stance = new (writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<State> state = new (writePerm: NetworkVariableWritePermission.Server);
 
     private void Awake()
     {
@@ -64,7 +64,7 @@ public class Rapier : NetworkBehaviour
 
     private void OnStrike(InputAction.CallbackContext context)
     {
-        if (state == State.GUARD)
+        if (state.Value == State.GUARD)
         {
             StrikeRPC();
         }
@@ -72,7 +72,7 @@ public class Rapier : NetworkBehaviour
 
     private void OnMoveRapier(InputAction.CallbackContext context)
     {
-        if (state == State.GUARD)
+        if (state.Value == State.GUARD)
         {
             var moveRapierValue = context.ReadValue<float>();
             switch (moveRapierValue)
@@ -89,7 +89,7 @@ public class Rapier : NetworkBehaviour
 
     private IEnumerator StrikeCoroutine()
     {
-        state = State.STRIKE;
+        state.Value = State.STRIKE;
         transform.localPosition += new Vector3(strikeReach, 0);
 
 
@@ -104,7 +104,7 @@ public class Rapier : NetworkBehaviour
                     var otherClientId = hitBuffer[i].transform.GetComponent<NetworkObject>().OwnerClientId;
 
                     // No hit if the other player is in the same stance
-                    if (Game.Instance.GetStance(otherClientId) != stance)
+                    if (Game.Instance.GetStance(otherClientId) != stance.Value)
                     {
                         Game.Instance.RespawnPlayers();
                         Game.Instance.UpdateScore(OwnerClientId, otherClientId);
@@ -116,7 +116,7 @@ public class Rapier : NetworkBehaviour
         yield return new WaitForSeconds(strikeDuration);
         
         transform.localPosition -= new Vector3(strikeReach, 0);
-        state = State.GUARD;
+        state.Value = State.GUARD;
     }
     
     private bool OverlapsPlayer()
@@ -135,16 +135,16 @@ public class Rapier : NetworkBehaviour
 
     public Stance GetStance()
     {
-        return stance;
+        return stance.Value;
     }
     
     [Rpc(SendTo.Server)]
     private void MoveRapierRPC(int data)
     {
-        stance += data;
-        stance = (Stance)Mathf.Clamp((int)stance, (int)Stance.BOTTOM , (int)Stance.TOP);
+        stance.Value += data;
+        stance.Value = (Stance)Mathf.Clamp((int)stance.Value, (int)Stance.BOTTOM , (int)Stance.TOP);
             
-        transform.localPosition = offset + new Vector3(0, stances[stance]);
+        transform.localPosition = offset + new Vector3(0, stances[stance.Value]);
     }
     
     [Rpc(SendTo.Server)]
